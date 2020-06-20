@@ -14,7 +14,7 @@ import static org.mockito.Mockito.*;
 
 public class RESTHandlerBinderTest {
 
-    private final RequestHandlerWrapper wrapper = mock(RequestHandlerWrapper.class);
+    private final MessageHandlerWrapper wrapper = mock(MessageHandlerWrapper.class);
     private final RESTOperationsFacade restFacade = mock(RESTOperationsFacade.class);
     private final RESTHandlerBinder restBinder = new RESTHandlerBinder(wrapper, restFacade);
 

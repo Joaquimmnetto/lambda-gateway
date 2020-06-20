@@ -9,6 +9,10 @@ public class LambdaIdentifier {
         this.lambdaName = lambdaName;
     }
 
+    public String lambdaName() {
+        return lambdaName;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

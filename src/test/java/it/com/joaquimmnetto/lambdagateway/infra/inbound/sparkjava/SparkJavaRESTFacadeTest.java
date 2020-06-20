@@ -12,7 +12,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -21,9 +20,7 @@ import static org.mockito.Mockito.when;
 
 public class SparkJavaRESTFacadeTest {
 
-    private final Serializer serializer = mock(Serializer.class);
-    private final SparkJavaRESTFacade facade = new SparkJavaRESTFacade(serializer);
-
+    private final SparkJavaRESTFacade facade = new SparkJavaRESTFacade();
 
     @Test
     public void passClientRequestDataToHandle() throws IOException {
@@ -47,9 +44,11 @@ public class SparkJavaRESTFacadeTest {
         var postResponse = Request.Post("http://localhost:4567/test-path?getParam=value")
                 .addHeader(httpHeaders[0], httpHeaders[1])
                 .bodyStream(new ByteArrayInputStream(responseBody.getBytes()))
-                .execute();
+                .execute().returnResponse();
 
-        assertThat(postResponse.returnResponse().getStatusLine().getStatusCode(), is(responseStatus));
+        assertThat(postResponse.getStatusLine().getStatusCode(), is(responseStatus));
+        assertThat(new String(postResponse.getEntity().getContent().readAllBytes()), is(responseBody));
+
     }
 
 }

@@ -2,7 +2,7 @@ package ut.com.joaquimmnetto.lambdagateway.infra.inbound;
 
 import com.joaquimmnetto.lambdagateway.infra.handler.MessageHandler;
 import com.joaquimmnetto.lambdagateway.infra.http.HTTPRequestHandler;
-import com.joaquimmnetto.lambdagateway.infra.inbound.RequestHandlerWrapper;
+import com.joaquimmnetto.lambdagateway.infra.inbound.MessageHandlerWrapper;
 import com.joaquimmnetto.lambdagateway.infra.tools.Serializer;
 import org.junit.Test;
 
@@ -13,9 +13,9 @@ import static org.hamcrest.core.IsNull.nullValue;
 import static org.mockito.Mockito.mock;
 
 
-public class RequestHandlerWrapperTest {
+public class MessageHandlerWrapperTest {
     private final Serializer serializer = mock(Serializer.class);
-    private final RequestHandlerWrapper wrapper = new RequestHandlerWrapper(serializer);
+    private final MessageHandlerWrapper wrapper = new MessageHandlerWrapper(serializer);
 
     @Test
     public void wrapsRequestHandlerToProcessHTTPRequests() {

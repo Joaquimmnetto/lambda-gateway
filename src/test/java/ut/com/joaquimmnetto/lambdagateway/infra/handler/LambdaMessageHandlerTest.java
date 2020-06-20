@@ -2,10 +2,8 @@ package ut.com.joaquimmnetto.lambdagateway.infra.handler;
 
 import com.joaquimmnetto.lambdagateway.infra.handler.LambdaMessageHandler;
 import com.joaquimmnetto.lambdagateway.infra.http.HTTPInboundMessage;
-import com.joaquimmnetto.lambdagateway.infra.http.exception.InvalidParameter;
+import com.joaquimmnetto.lambdagateway.infra.http.exception.InvalidParameterException;
 import com.joaquimmnetto.lambdagateway.infra.inbound.InboundMessage;
-import com.joaquimmnetto.lambdagateway.model.LambdaIdentifier;
-import com.joaquimmnetto.lambdagateway.model.LambdaPayload;
 import com.joaquimmnetto.lambdagateway.service.LambdaService;
 import org.junit.Test;
 
@@ -53,7 +51,7 @@ public class LambdaMessageHandlerTest {
         assertThat(lambdaResponse, is(response));
     }
 
-    @Test(expected=InvalidParameter.class)
+    @Test(expected= InvalidParameterException.class)
     public void throwsExceptionWhenNoLambdaNameIsProvided() {
         Object lambdaMessage = mock(Object.class);
         InboundMessage message = inboundMessageForLambda(null, lambdaMessage);
@@ -67,7 +65,7 @@ public class LambdaMessageHandlerTest {
 
     private HTTPInboundMessage inboundMessageForLambda(String lambdaName, Object lambdaMessage) {
         return new HTTPInboundMessage(lambdaMessage,
-                new HashMap<>(), singletonMap("lambdaName", lambdaName), new HashMap<>());
+                new HashMap<>(), singletonMap(":lambda_name", lambdaName), new HashMap<>());
     }
 
 }

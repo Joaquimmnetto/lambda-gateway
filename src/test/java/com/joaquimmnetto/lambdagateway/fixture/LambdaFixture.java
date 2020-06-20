@@ -23,4 +23,8 @@ public class LambdaFixture {
         return payloadFor(mock(Object.class));
     }
 
+    public static String aRawPayload() {
+        return "{\"key\":\"value\"}";
+    }
+
 }

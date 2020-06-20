@@ -1,33 +1,37 @@
 package com.joaquimmnetto.lambdagateway;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
 import com.joaquimmnetto.lambdagateway.inbound.HandlerData;
 import com.joaquimmnetto.lambdagateway.infra.http.HTTPEndpoint;
 import com.joaquimmnetto.lambdagateway.infra.inbound.RESTHandlerBinder;
 import com.joaquimmnetto.lambdagateway.infra.handler.MessageHandler;
+import com.joaquimmnetto.lambdagateway.ioc.internals.DependencyModule;
+import com.joaquimmnetto.lambdagateway.ioc.internals.IoCInjector;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class ServiceBuilder {
 
-    private final List<AbstractModule> dependencyGuiceModules;
+    private final Function<List<DependencyModule>, IoCInjector> iocInjectorFactory;
+    private final List<DependencyModule> dependencyModules;
     private Map<HTTPEndpoint, HandlerData<?>> handlerRESTBindings;
 
-    public static ServiceBuilder service() {
-        return new ServiceBuilder();
+    public static ServiceBuilder service(Function<List<DependencyModule>, IoCInjector> iocInjectorFactory) {
+        return new ServiceBuilder(iocInjectorFactory);
     }
 
-    private ServiceBuilder() {
-        this.dependencyGuiceModules = new ArrayList<>();
+    private ServiceBuilder(Function<List<DependencyModule>, IoCInjector> iocInjectorFactory) {
+        this.iocInjectorFactory = iocInjectorFactory;
+        this.dependencyModules = new ArrayList<>();
         this.handlerRESTBindings = new HashMap<>();
     }
 
-    public <T> ServiceBuilder withDependencies(AbstractModule guiceModule) {
-        dependencyGuiceModules.add(guiceModule);
+    public <T> ServiceBuilder withDependencies(DependencyModule module) {
+        dependencyModules.add(module);
         return this;
     }
 
@@ -38,11 +42,11 @@ public class ServiceBuilder {
     }
 
     public void launch() {
-        var injector = Guice.createInjector(dependencyGuiceModules);
-        var restHandlerBinder = injector.getInstance(RESTHandlerBinder.class);
+        var injector = iocInjectorFactory.apply(dependencyModules);
+        var restHandlerBinder = injector.instance(RESTHandlerBinder.class);
         handlerRESTBindings.forEach((endpoint, handlerData) ->
                     restHandlerBinder.bind(endpoint,
-                            injector.getInstance(handlerData.handlerClass()),
+                            injector.instance(handlerData.handlerClass()),
                             handlerData.requestClass())
         );
     }

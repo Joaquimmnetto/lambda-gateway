@@ -15,11 +15,6 @@ import static java.util.stream.Collectors.toMap;
 
 public class SparkJavaRESTFacade implements RESTOperationsFacade {
 
-    private final Serializer serializer;
-
-    public SparkJavaRESTFacade(Serializer serializer) {
-        this.serializer = serializer;
-    }
 
     @Override
     public void listenPOST(String path, HTTPRequestHandler requestHandlerWrapping) {
@@ -27,13 +22,14 @@ public class SparkJavaRESTFacade implements RESTOperationsFacade {
     }
 
 
-    private Response processBodiedRequest(Request req, Response res, HTTPRequestHandler requestHandler) {
+    private String processBodiedRequest(Request req, Response res, HTTPRequestHandler requestHandler) {
         HTTPBody body = new HTTPBody(req.body());
         Map<String, String> headers = extractHeaders(req);
         Map<String, String> queryParams = extractQueryParams(req);
         Map<String, String> pathParams = req.params();
         HTTPResponse response = requestHandler.handle(body, headers, pathParams, queryParams);
-        return populateSparkResponse(res, response);
+        populateSparkResponse(res, response);
+        return res.body();
     }
 
     private Map<String, String> extractQueryParams(Request req) {
@@ -48,11 +44,10 @@ public class SparkJavaRESTFacade implements RESTOperationsFacade {
                 .collect(toMap(headerParts -> headerParts[0], headerParts -> headerParts[1]));
     }
 
-    private Response populateSparkResponse(Response res, HTTPResponse response) {
-        res.body(response.body().orElse(null));
-        res.status(response.status());
-        res.type(response.contentType().orElse(null));
-        return res;
+    private void populateSparkResponse(Response outerResponse, HTTPResponse appResponse) {
+        outerResponse.body(appResponse.body().orElse(null));
+        outerResponse.status(appResponse.status());
+        outerResponse.type(appResponse.contentType().orElse(null));
     }
 
 }

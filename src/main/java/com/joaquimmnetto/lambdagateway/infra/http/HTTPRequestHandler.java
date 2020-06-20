@@ -1,7 +1,7 @@
 package com.joaquimmnetto.lambdagateway.infra.http;
 
 import com.joaquimmnetto.lambdagateway.infra.handler.MessageHandler;
-import com.joaquimmnetto.lambdagateway.infra.http.exception.InvalidParameter;
+import com.joaquimmnetto.lambdagateway.infra.http.exception.InvalidParameterException;
 import com.joaquimmnetto.lambdagateway.infra.inbound.exception.DeserializatonException;
 import com.joaquimmnetto.lambdagateway.infra.tools.Serializer;
 
@@ -29,7 +29,7 @@ public class HTTPRequestHandler {
             return maybeResponse
                     .map(response -> HTTPResponse.success(serializer.serialize(response)))
                     .orElse(HTTPResponse.success());
-        } catch (InvalidParameter | DeserializatonException e) {
+        } catch (InvalidParameterException | DeserializatonException e) {
             return HTTPResponse.requestError(e);
         } catch (Exception e) {
             return HTTPResponse.serverError(e);

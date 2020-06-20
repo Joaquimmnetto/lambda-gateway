@@ -10,11 +10,11 @@ import java.util.function.BiConsumer;
 
 public class RESTHandlerBinder {
 
-    private final RequestHandlerWrapper wrapper;
+    private final MessageHandlerWrapper wrapper;
     private final RESTOperationsFacade restFacade;
 
 
-    public RESTHandlerBinder(RequestHandlerWrapper wrapper, RESTOperationsFacade restFacade) {
+    public RESTHandlerBinder(MessageHandlerWrapper wrapper, RESTOperationsFacade restFacade) {
         this.wrapper = wrapper;
         this.restFacade = restFacade;
     }

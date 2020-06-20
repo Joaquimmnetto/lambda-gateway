@@ -1,7 +1,7 @@
 package ut.com.joaquimmnetto.lambdagateway.infra.http;
 
 import com.joaquimmnetto.lambdagateway.infra.handler.MessageHandler;
-import com.joaquimmnetto.lambdagateway.infra.http.exception.InvalidParameter;
+import com.joaquimmnetto.lambdagateway.infra.http.exception.InvalidParameterException;
 import com.joaquimmnetto.lambdagateway.infra.http.HTTPResponse;
 import com.joaquimmnetto.lambdagateway.infra.http.HTTPBody;
 import com.joaquimmnetto.lambdagateway.infra.inbound.InboundMessage;
@@ -96,7 +96,7 @@ public class HTTPRequestHandlerTest {
 
         String exceptionMessage = "message";
         when(innerMessageHandler.handle(argThat(inboundMessageFromHTTP(handlerInboundObject,
-                httpHeaders, namedParameters, urlParameters)))).thenThrow(new InvalidParameter(exceptionMessage));
+                httpHeaders, namedParameters, urlParameters)))).thenThrow(new InvalidParameterException(exceptionMessage));
 
         HTTPRequestHandler requestHandler = new HTTPRequestHandler(serializer, innerMessageHandler,
                 handlerInboundObjectClass);
