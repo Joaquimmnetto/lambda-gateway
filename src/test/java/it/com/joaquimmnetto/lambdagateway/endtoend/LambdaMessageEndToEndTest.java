@@ -41,6 +41,14 @@ public class LambdaMessageEndToEndTest {
         assertThat(postResponse.getStatusLine().getStatusCode(), is(400));
     }
 
+    @Test
+    public void receives404WhenInvokingNonDescribedEndpoint() throws IOException {
+        var postResponse = Request.Post("http://localhost:4567/non-existent-endpoint")
+                .execute().returnResponse();
+
+        assertThat(postResponse.getStatusLine().getStatusCode(), is(404));
+    }
+
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Before
