@@ -34,11 +34,20 @@ public class LauncherTest {
     }
 
     private HttpResponse sendNonExistingLambdaRequestToApp() throws IOException {
+        sleep(500L);
         String testLambdaName = "non-existing-lambda";
 
         return Request.Post("http://localhost:4567/invoke/" + testLambdaName)
                 .execute().returnResponse();
 
+    }
+
+    private void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();

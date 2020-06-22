@@ -5,16 +5,24 @@ import com.joaquimmnetto.lambdagateway.infra.http.HTTPRequestHandler;
 import com.joaquimmnetto.lambdagateway.infra.http.HTTPResponse;
 import com.joaquimmnetto.lambdagateway.infra.http.RESTOperationsFacade;
 import com.joaquimmnetto.lambdagateway.infra.tools.Serializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
 import spark.Spark;
 
 import java.util.Map;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toMap;
 
 public class SparkJavaRESTFacade implements RESTOperationsFacade {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    public SparkJavaRESTFacade() {
+        Spark.afterAfter(this::logResponse);
+    }
 
     @Override
     public void listenPOST(String path, HTTPRequestHandler requestHandlerWrapping) {
@@ -48,6 +56,12 @@ public class SparkJavaRESTFacade implements RESTOperationsFacade {
         outerResponse.body(appResponse.body().orElse(null));
         outerResponse.status(appResponse.status());
         outerResponse.type(appResponse.contentType().orElse(null));
+    }
+
+    private void logResponse(Request request, Response response) {
+        Optional<Integer> bodyLength = Optional.ofNullable(response.body()).map(body -> body.getBytes().length);
+        logger.info("{}: {} {} - {} - {} bytes", request.protocol(), request.requestMethod(), request.pathInfo(),
+                    response.status(), bodyLength.orElse(0));
     }
 
 }
