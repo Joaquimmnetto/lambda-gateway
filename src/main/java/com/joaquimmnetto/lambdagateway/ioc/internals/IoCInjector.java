@@ -6,14 +6,16 @@ import com.joaquimmnetto.lambdagateway.ioc.internals.spring.SpringIoCInjector;
 
 import java.util.List;
 
+import static java.util.Arrays.asList;
+
 public interface IoCInjector {
 
     <T> T instance(Class<T> instanceClass);
 
-    static IoCInjector createGuice(List<DependencyModule> dependencyModules) {
-        return new GuiceIoCInjector(dependencyModules);
+    static IoCInjector forGuice(DependencyModule... dependencyModules) {
+        return new GuiceIoCInjector(asList(dependencyModules));
     }
-    static IoCInjector createSpring(List<DependencyModule> dependencyModules) {
-        return new SpringIoCInjector(dependencyModules);
+    static IoCInjector createSpring(DependencyModule... dependencyModules) {
+        return new SpringIoCInjector(asList(dependencyModules));
     }
 }

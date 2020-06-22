@@ -15,9 +15,9 @@ public class IoCContainerEndpointBuilder {
         this.injector = injector;
     }
 
-    public <T> IoCContainerEndpointBuilder withRESTBinding(String method, String path,
-                                                           Class<? extends MessageHandler> handlerClass,
-                                                           Class<T> requestClass) {
+    public <T> IoCContainerEndpointBuilder addRESTBinding(String method, String path,
+                                                          Class<? extends MessageHandler> handlerClass,
+                                                          Class<T> requestClass) {
         MessageHandler handler = injector.instance(handlerClass);
         HTTPEndpoint bindingEndpoint = new HTTPEndpoint(method, path);
         service.bindOnLaunch((restBinder) -> restBinder.bind(bindingEndpoint, handler, requestClass));

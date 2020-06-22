@@ -12,7 +12,6 @@ import com.joaquimmnetto.lambdagateway.ioc.internals.IoCInjector;
 import org.junit.Test;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -22,7 +21,7 @@ public class GuiceDependencyLoadTest {
 
     @Test
     public void loadsToolsDependenciesWithoutError() {
-        IoCInjector injector = new GuiceIoCInjector(singletonList(new ToolsDependencyModule()));
+        IoCInjector injector = IoCInjector.forGuice(new ToolsDependencyModule());
 
         var serializerObj = injector.instance(Serializer.class);
 
@@ -31,8 +30,7 @@ public class GuiceDependencyLoadTest {
 
     @Test
     public void loadsRESTDependenciesWithoutError() {
-        IoCInjector injector = new GuiceIoCInjector(
-                asList(new ToolsDependencyModule(), new RESTDependencyModule()));
+        IoCInjector injector = IoCInjector.forGuice(new ToolsDependencyModule(), new RESTDependencyModule());
 
         var moduleAPIObj = injector.instance(RESTHandlerBinder.class);
 
@@ -42,8 +40,7 @@ public class GuiceDependencyLoadTest {
 
     @Test
     public void loadsLambdaHandlerDependenciesWithoutError() {
-        IoCInjector injector = new GuiceIoCInjector(
-                asList(new ToolsDependencyModule(), new LambdaHandlerDependencyModule()));
+        IoCInjector injector = IoCInjector.forGuice(new ToolsDependencyModule(), new LambdaHandlerDependencyModule());
 
         var moduleAPIObj = injector.instance(LambdaMessageHandler.class);
 

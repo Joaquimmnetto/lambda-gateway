@@ -10,8 +10,6 @@ import com.joaquimmnetto.lambdagateway.launch.ServiceBuilder;
 
 import java.util.Map;
 
-import static java.util.Arrays.asList;
-
 
 public class Launcher {
 
@@ -20,11 +18,11 @@ public class Launcher {
     }
 
     public static void launchWithIoCInjector() {
-        IoCInjector injector = IoCInjector.createGuice(asList(new ToolsDependencyModule(),
-                new RESTDependencyModule(), new LambdaHandlerDependencyModule()));
+        IoCInjector injector = IoCInjector.forGuice(new ToolsDependencyModule(),
+                new RESTDependencyModule(), new LambdaHandlerDependencyModule());
         ServiceBuilder.service()
             .usingIoCInjector(injector)
-            .withRESTBinding("POST", "/invoke/:lambda_name", LambdaMessageHandler.class, Map.class)
+            .addRESTBinding("POST", "/invoke/:lambda_name", LambdaMessageHandler.class, Map.class)
             .launch();
     }
 
@@ -32,7 +30,7 @@ public class Launcher {
         RESTHandlerBinder binder = RESTHandlerBinder.sparkJavaBinder();
         ServiceBuilder.service()
                 .withRESTHandlerBinder(binder)
-                .withRESTBinding("POST", "/invoke/:lambda_name", LambdaMessageHandler.forAWS(), Map.class)
+                .addRESTBinding("POST", "/invoke/:lambda_name", LambdaMessageHandler.forAWS(), Map.class)
                 .launch();
     }
 

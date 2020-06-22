@@ -13,8 +13,8 @@ public class SimpleEndpointBuilder {
         this.service = service;
     }
 
-    public <T> SimpleEndpointBuilder withRESTBinding(String method, String path,
-                                              MessageHandler handler, Class<T> requestClass) {
+    public <T> SimpleEndpointBuilder addRESTBinding(String method, String path,
+                                                    MessageHandler handler, Class<T> requestClass) {
         HTTPEndpoint bindingEndpoint = new HTTPEndpoint(method, path);
         service.bindOnLaunch(restBinder -> restBinder.bind(bindingEndpoint, handler, requestClass));
         return this;
