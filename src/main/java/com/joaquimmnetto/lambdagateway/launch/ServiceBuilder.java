@@ -2,12 +2,15 @@ package com.joaquimmnetto.lambdagateway.launch;
 
 import com.joaquimmnetto.lambdagateway.infra.inbound.RESTHandlerBinder;
 import com.joaquimmnetto.lambdagateway.ioc.internals.IoCInjector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.Consumer;
 
 public class ServiceBuilder {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final List<Consumer<RESTHandlerBinder>> bindOperations;
     private RESTHandlerBinder restBinder;
 
@@ -39,6 +42,7 @@ public class ServiceBuilder {
     }
     
     public void launch() {
+        logger.info("Executing {} bind operations", bindOperations.size());
         bindOperations.forEach(bindOp -> bindOp.accept(restBinder));
     }
 

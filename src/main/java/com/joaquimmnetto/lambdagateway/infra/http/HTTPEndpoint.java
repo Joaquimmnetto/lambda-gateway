@@ -16,4 +16,9 @@ public class HTTPEndpoint {
     public String path() {
         return path;
     }
+
+    @Override
+    public String toString() {
+        return method + ": " + path;
+    }
 }

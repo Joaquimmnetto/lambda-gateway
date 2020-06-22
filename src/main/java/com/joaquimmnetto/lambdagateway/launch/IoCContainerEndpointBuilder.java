@@ -3,9 +3,12 @@ package com.joaquimmnetto.lambdagateway.launch;
 import com.joaquimmnetto.lambdagateway.infra.handler.MessageHandler;
 import com.joaquimmnetto.lambdagateway.infra.http.HTTPEndpoint;
 import com.joaquimmnetto.lambdagateway.ioc.internals.IoCInjector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class IoCContainerEndpointBuilder {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private ServiceBuilder service;
     private IoCInjector injector;
 
@@ -20,6 +23,8 @@ public class IoCContainerEndpointBuilder {
                                                           Class<T> requestClass) {
         MessageHandler handler = injector.instance(handlerClass);
         HTTPEndpoint bindingEndpoint = new HTTPEndpoint(method, path);
+
+        logger.info("Scheduling bind ({} - {})", bindingEndpoint, handlerClass.getSimpleName());
         service.bindOnLaunch((restBinder) -> restBinder.bind(bindingEndpoint, handler, requestClass));
         return this;
     }
