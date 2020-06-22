@@ -16,6 +16,11 @@ public class LambdaMessageHandler implements MessageHandler {
         this.lambdaService = lambdaService;
     }
 
+
+    public static LambdaMessageHandler forAWS() {
+        return new LambdaMessageHandler(LambdaService.awsService());
+    }
+
     @Override
     public Optional<Object> handle(InboundMessage inboundMessage) {
         Optional<String> maybeLambdaName = inboundMessage.namedParam(":lambda_name");

@@ -12,6 +12,10 @@ public class MessageHandlerWrapper {
         this.serializer = serializer;
     }
 
+    public static MessageHandlerWrapper instance() {
+        return new MessageHandlerWrapper(Serializer.instance());
+    }
+
     public HTTPRequestHandler wrapForHTTP(MessageHandler messageHandler, Class<?> handlerInboundObjClass) {
         return new HTTPRequestHandler(serializer, messageHandler, handlerInboundObjClass);
     }

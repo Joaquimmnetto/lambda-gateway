@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface IoCInjector {
 
-    <T> T instance(Class<T> serializerClass);
+    <T> T instance(Class<T> instanceClass);
 
     static IoCInjector createGuice(List<DependencyModule> dependencyModules) {
         return new GuiceIoCInjector(dependencyModules);

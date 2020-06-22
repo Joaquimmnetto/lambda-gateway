@@ -19,8 +19,8 @@ public class GuiceIoCInjector implements IoCInjector {
     }
 
     @Override
-    public <T> T instance(Class<T> keyClass) {
-        return injector.getInstance(keyClass);
+    public <T> T instance(Class<T> instanceClass) {
+        return injector.getInstance(instanceClass);
     }
 
 }

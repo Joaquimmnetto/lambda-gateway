@@ -1,0 +1,162 @@
+Parameters:
+  baseStackName:
+    Type: String
+  sshKey:
+    Type: AWS::EC2::KeyPair::KeyName
+  ecrRepoURI:
+    Type: String
+  artifactBucketName:
+    Type: String
+  dbURI:
+    Type: String
+
+Resources:
+  # ----------------- PERMISSIONS ----------------
+  lambdaInvokeRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: lambda-invokeonly
+            PolicyDocument:
+              Statement:
+                  - Effect: Allow
+                    Action:
+                      - lambda:InvokeFunction
+                      #- lambda:GetFunction
+                    Resource: "*"
+  lambdaGatewayProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: /
+      Roles:
+        - Ref: lambdaInvokeRole
+
+  # ----------------- SECURITY GROUPS ----------------
+  mlFlowSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: MLFlow public web exposure
+  mlflowHttpSGRule:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol: tcp
+      FromPort: 80
+      ToPort: 80
+      GroupId: !GetAtt mlFlowSG.GroupId
+      CidrIp: '0.0.0.0/0'
+  mlflowHttpsSGRule:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      GroupId: !GetAtt mlFlowSG.GroupId
+      CidrIp: '0.0.0.0/0'
+  mlflowSSHSGRule:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol: tcp
+      FromPort: 22
+      ToPort: 22
+      GroupId: !GetAtt mlFlowSG.GroupId
+      CidrIp: '0.0.0.0/0'
+
+  # ----------------- INSTANCE ----------------
+  mlFlowEC2:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0323c3dd2da7fb37d
+      KeyName: !Ref sshKey
+      InstanceType: t3.small
+      IamInstanceProfile: !Ref mlFlowProfile
+      SecurityGroups:
+        - !Ref mlFlowSG
+        - Fn::ImportValue:
+            !Sub ${baseStackName}-rds-access-sgname
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeType: gp2
+            VolumeSize: 8
+      Tags:
+        - Key: Name
+          Value: mlflow
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          exec 2> /tmp/user-data.log && exec 1>&2
+          yum update -y aws-cfn-bootstrap aws-cli
+          /opt/aws/bin/cfn-init --stack ${AWS::StackName} --resource mlFlowEC2 --region ${AWS::Region}
+    Metadata:
+      AWS::CloudFormation::Init:
+        config:
+          packages:
+            yum:
+              docker: []
+          files:
+            /etc/rc.d/rc.local:
+              content: !Sub |
+                #!/bin/sh
+                #
+                # This script will be executed *after* all the other init scripts.
+                # You can put your own initialization stuff in here if you don't
+                # want to do the full Sys V style init stuff.
+
+                touch /var/lock/subsys/local
+
+                exec 2> /home/ec2-user/rc.local.log && exec 1>&2 && set -x
+
+                echo 'Starting docker-compose...'
+                sudo -u ec2-user aws ecr get-login --region us-east-1 --no-include-email > /tmp/docker-login.sh
+                sudo -u ec2-user bash /tmp/docker-login.sh
+                sudo -u ec2-user /usr/local/bin/docker-compose -f /home/ec2-user/docker-compose.yml up -d
+                echo 'docker-compose started.'
+              mode: "000755"
+              owner: root
+              group: root
+            /home/ec2-user/docker-compose.yml:
+              content: !Sub |
+                version: '3.3'
+                services:
+                  web:
+                    restart: always
+                    image: ${ecrRepoURI}/mlflow/server:latest
+                    container_name: mlflow_server
+                    expose:
+                      - "5000"
+                    command: mlflow server --backend-store-uri ${dbURI}/mlflow --default-artifact-root s3://${artifactBucketName}/artifacts --host 0.0.0.0
+                  nginx:
+                    restart: always
+                    image: ${ecrRepoURI}/mlflow/nginx:latest
+                    container_name: mlflow_nginx
+                    ports:
+                      - "80:80"
+                      - "443:443"
+                    depends_on:
+                      - web
+              mode: "000600"
+              owner: ec2-user
+              group: ec2-user
+          commands:
+            01_permission_docker:
+              command: usermod -a -G docker ec2-user
+            02_install_compose:
+              command: curl -L "https://github.com/docker/compose/releases/download/1.25.5/docker-compose-$(uname -s)-$(uname -m)" > /usr/local/bin/docker-compose
+            03_permission_compose:
+              command: chmod +x /usr/local/bin/docker-compose
+            04_run_rc_local:
+              command: sudo /etc/rc.d/rc.local
+          services:
+            sysvinit:
+              docker:
+                enabled: true
+                ensureRunning: true

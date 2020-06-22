@@ -16,6 +16,7 @@ public class AWSLambdaFacade {
         this.lambdaClient = LambdaClient.create();
     }
 
+
     public String invoke(String lambdaName, String payload) {
         try {
             InvokeRequest.Builder builder = InvokeRequest.builder().functionName(lambdaName);

@@ -14,6 +14,10 @@ public class LambdaService {
         this.lambdaRegistry = lambdaRegistry;
     }
 
+    public static LambdaService awsService() {
+        return new LambdaService(LambdaRegistry.awsRegistry());
+    }
+
     public Optional<Object> callLambda(LambdaIdentifier lambdaIdentifier, LambdaPayload lambdaPayload) {
         Lambda lambda = lambdaRegistry.get(lambdaIdentifier);
         return lambda.call(lambdaPayload);

@@ -19,6 +19,10 @@ public class RESTHandlerBinder {
         this.restFacade = restFacade;
     }
 
+    public static RESTHandlerBinder sparkJavaBinder() {
+        return new RESTHandlerBinder(MessageHandlerWrapper.instance(), RESTOperationsFacade.sparkJavaOperations());
+    }
+
     public void bind(HTTPEndpoint HTTPEndpoint, MessageHandler handler, Class<?> handlerInboundObjClass) {
         var wrappedRequestHandler = wrapper.wrapForHTTP(handler, handlerInboundObjClass);
         var httpListenerRegisterer = chooseHTTPMethodCallable(HTTPEndpoint.method());
